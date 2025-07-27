@@ -38,18 +38,10 @@ public class SecurityConfig {
                             .requestMatchers("/hello").hasAnyRole("USER","ADMIN")
                             .requestMatchers("/admin").hasRole("ADMIN").anyRequest().authenticated();
                 })
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/register")
-                        .ignoringRequestMatchers("/role")
-                )
-                .formLogin(form -> form
-                        .defaultSuccessUrl("/hello", true)
-                )
                 .sessionManagement(session->{
-                    session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS).maximumSessions(1)
-                            .maxSessionsPreventsLogin(true)
-                            .expiredUrl("/login?expired=true");
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
+                .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults());
         return http.build();
     }

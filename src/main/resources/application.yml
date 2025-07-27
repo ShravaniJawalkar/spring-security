@@ -1,13 +1,6 @@
 spring:
   application:
     name: spring-security
-
-  session:
-    store-type: jdbc
-    jdbc:
-      initialize-schema: always
-    timeout: 5m
-
   datasource:
     url: jdbc:postgresql://localhost:5432/AuthService
     username: auth
