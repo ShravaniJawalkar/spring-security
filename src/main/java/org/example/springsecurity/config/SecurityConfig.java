@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -29,9 +30,26 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorizeRequests -> {
-                    authorizeRequests.requestMatchers("/register").permitAll()
-                            .anyRequest().authenticated();
-                }).csrf(CsrfConfigurer::disable)
+                    authorizeRequests.requestMatchers("/register").permitAll().
+                            requestMatchers("/login").permitAll()
+                            .requestMatchers("/role").permitAll()
+                            .requestMatchers("/favicon.ico").permitAll()
+                            .requestMatchers("/error").permitAll()
+                            .requestMatchers("/hello").hasAnyRole("USER","ADMIN")
+                            .requestMatchers("/admin").hasRole("ADMIN").anyRequest().authenticated();
+                })
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/register")
+                        .ignoringRequestMatchers("/role")
+                )
+                .formLogin(form -> form
+                        .defaultSuccessUrl("/hello", true)
+                )
+                .sessionManagement(session->{
+                    session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS).maximumSessions(1)
+                            .maxSessionsPreventsLogin(true)
+                            .expiredUrl("/login?expired=true");
+                })
                 .httpBasic(Customizer.withDefaults());
         return http.build();
     }

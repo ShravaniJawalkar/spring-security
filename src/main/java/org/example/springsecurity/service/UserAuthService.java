@@ -1,9 +1,11 @@
 package org.example.springsecurity.service;
 
+import aj.org.objectweb.asm.commons.Remapper;
 import org.example.springsecurity.model.UserRequest;
 import org.example.springsecurity.repository.UserAuthRepository;
 import org.example.springsecurity.repository.securitydao.UserAuth;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -32,5 +34,13 @@ public class UserAuthService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userAuthRepository.findUserAuthByName(username).orElseThrow(() ->
             new UsernameNotFoundException("User not found with username: " + username));
+    }
+
+    public ResponseEntity<String> updateUserRole(String username, String role) {
+        UserAuth userAuth = userAuthRepository.findUserAuthByName(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+        userAuth.setRoles(role);
+        userAuthRepository.save(userAuth);
+        return ResponseEntity.ok("User role updated successfully");
     }
 }

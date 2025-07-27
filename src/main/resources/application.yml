@@ -1,16 +1,19 @@
 spring:
   application:
     name: spring-security
-  security:
-    user:
-      name: dummy_user
-      password: dummy_password
+
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: always
+    timeout: 5m
 
   datasource:
     url: jdbc:postgresql://localhost:5432/AuthService
     username: auth
     password: auth123
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -25,5 +28,7 @@ logging:
     org.hibernate.sql: DEBUG
     org.hibernate.engine.spi: DEBUG
     org.springframework.security: DEBUG
+
 server:
   port: 8082
+

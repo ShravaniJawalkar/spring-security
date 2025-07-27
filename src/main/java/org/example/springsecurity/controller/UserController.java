@@ -17,9 +17,23 @@ public class UserController {
 
         return ResponseEntity.ok(userAuthService.registerUser(userRequest));
     }
+    @PutMapping("/role")
+    public ResponseEntity<String> updateUser(@RequestParam("name") String username, @RequestParam("role") String role) {
+        return userAuthService.updateUserRole(username, role);
+    }
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello! You have successfully logged in.";
+    }
 
     @GetMapping("/")
-    public ResponseEntity<String> home() {
-        return ResponseEntity.ok("Welcome to the Spring Security Example");
+    public String home() {
+        return "Welcome to the home page!";
+    }
+
+    @GetMapping("/admin")
+    public String admin() {
+        return "Welcome to the admin page!";
     }
 }
