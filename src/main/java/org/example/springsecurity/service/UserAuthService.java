@@ -15,10 +15,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserAuthService implements UserDetailsService {
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private UserAuthRepository userAuthRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserAuthRepository userAuthRepository;
+
+    public UserAuthService(PasswordEncoder passwordEncoder, UserAuthRepository userAuthRepository) {
+        this.passwordEncoder = passwordEncoder;
+        this.userAuthRepository = userAuthRepository;
+    }
 
     public UserDetails registerUser(UserRequest userRequest) {
         UserAuth userAuth = new UserAuth();
@@ -33,7 +36,7 @@ public class UserAuthService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userAuthRepository.findUserAuthByName(username).orElseThrow(() ->
-            new UsernameNotFoundException("User not found with username: " + username));
+                new UsernameNotFoundException("User not found with username: " + username));
     }
 
     public ResponseEntity<String> updateUserRole(String username, String role) {
