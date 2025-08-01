@@ -1,26 +1,22 @@
 spring:
   application:
     name: spring-security
-  datasource:
-    url: jdbc:postgresql://localhost:5432/AuthService
-    username: auth
-    password: auth123
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-
-logging:
-  level:
-    org.hibernate.sql: DEBUG
-    org.hibernate.engine.spi: DEBUG
-    org.springframework.security: DEBUG
+  security:
+    oauth2:
+      client:
+        provider:
+          gitlab:
+            authorization-uri: https://gitlab.com/oauth/authorize
+            token-uri: https://gitlab.com/oauth/token
+            issuer-uri: https://gitlab.com
+            jwk-set-uri: https://gitlab.com/oauth/discovery/keys
+        registration:
+            gitlab:
+                client-id: f6447fd0bda20db45ab616b5d4f486a5f0e92617c607f7660e5282dc39257bc1
+                client-secret: gloas-0ef1fc0354788b885ae09ef401f19ef2d0e772f37d44d4505933f9c9a74ee94f
+                scope: openid
+                redirect-uri: "http://localhost:8082/login/oauth2/code/gitlab"
+                authorization-grant-type: authorization_code
 
 server:
   port: 8082

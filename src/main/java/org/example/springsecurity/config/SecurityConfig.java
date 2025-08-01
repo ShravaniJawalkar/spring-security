@@ -1,41 +1,38 @@
 package org.example.springsecurity.config;
 
+import org.example.springsecurity.filter.OAuth2TokenValidationFilter;
+import org.example.springsecurity.handler.OAuth2ResponseHandler;
+import org.example.springsecurity.util.OAuth2AuthorizationUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Autowired
+    private OAuth2AuthorizationUtil oAuth2AuthorizationUtil;
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2ResponseHandler oauthResponseHandler) throws Exception {
         http.authorizeHttpRequests(authorizeRequests -> {
-                    authorizeRequests.requestMatchers("/register").permitAll().
-                            requestMatchers("/login").permitAll()
-                            .requestMatchers("/role").permitAll()
-                            .requestMatchers("/favicon.ico").permitAll()
-                            .requestMatchers("/error").permitAll()
-                            .requestMatchers("/hello").hasAnyRole("USER","ADMIN")
-                            .requestMatchers("/admin").hasRole("ADMIN").anyRequest().authenticated();
+                    authorizeRequests
+                            .anyRequest().authenticated();
                 })
-                .sessionManagement(session->{
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionManagement(sessionManagement -> {
+                    sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
-                .csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(Customizer.withDefaults());
+                .csrf(CsrfConfigurer::disable)
+                .oauth2Login(successfulLogin -> {
+                    successfulLogin.successHandler(oauthResponseHandler);
+                })
+                .addFilterBefore(new OAuth2TokenValidationFilter(oAuth2AuthorizationUtil), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }
