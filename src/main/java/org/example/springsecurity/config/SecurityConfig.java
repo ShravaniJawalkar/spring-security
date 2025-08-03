@@ -1,11 +1,11 @@
 package org.example.springsecurity.config;
 
-import org.example.springsecurity.filter.OAuth2TokenValidationFilter;
+import org.example.springsecurity.filter.JwtValidationFilter;
 import org.example.springsecurity.handler.OAuth2ResponseHandler;
-import org.example.springsecurity.util.OAuth2AuthorizationUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -15,9 +15,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
-    @Autowired
-    private OAuth2AuthorizationUtil oAuth2AuthorizationUtil;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2ResponseHandler oauthResponseHandler) throws Exception {
@@ -32,7 +32,11 @@ public class SecurityConfig {
                 .oauth2Login(successfulLogin -> {
                     successfulLogin.successHandler(oauthResponseHandler);
                 })
-                .addFilterBefore(new OAuth2TokenValidationFilter(oAuth2AuthorizationUtil), UsernamePasswordAuthenticationFilter.class);
+                .oauth2ResourceServer(oauth2ResourceServer -> {
+                    oauth2ResourceServer.jwt(Customizer.withDefaults());
+                })
+                .addFilterBefore(new JwtValidationFilter(), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }

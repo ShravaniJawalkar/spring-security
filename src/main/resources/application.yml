@@ -17,6 +17,10 @@ spring:
                 scope: openid
                 redirect-uri: "http://localhost:8082/login/oauth2/code/gitlab"
                 authorization-grant-type: authorization_code
+      resourceserver:
+        jwt:
+          issuer-uri: https://gitlab.com
+          jwk-set-uri: https://gitlab.com/oauth/discovery/keys
 
 server:
   port: 8082
